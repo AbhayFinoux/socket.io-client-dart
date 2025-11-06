@@ -253,26 +253,63 @@ class Socket extends EventEmitter {
   ///
   /// @param {Object} packet
   /// @api private
+//   void onevent(Map packet) {
+//     List args = packet['data'] ?? [];
+// //    debug('emitting event %j', args);
+//
+//     if (null != packet['id']) {
+// //      debug('attaching ack callback to event');
+//       args.add(ack(packet['id']));
+//     }
+//
+//     // dart doesn't support "String... rest" syntax.
+//     if (connected == true) {
+//       if (args.length > 2) {
+//         Function.apply(super.emit, [args.first, args.sublist(1)]);
+//       } else {
+//         Function.apply(super.emit, args);
+//       }
+//     } else {
+//       receiveBuffer.add(args);
+//     }
+//   }
+
+  ///-------------------------------------------------------
+
   void onevent(Map packet) {
     List args = packet['data'] ?? [];
-//    debug('emitting event %j', args);
+    _logger.fine('emitting event $args');
 
     if (null != packet['id']) {
-//      debug('attaching ack callback to event');
+      _logger.fine('attaching ack callback to event');
       args.add(ack(packet['id']));
     }
 
     // dart doesn't support "String... rest" syntax.
     if (connected == true) {
-      if (args.length > 2) {
-        Function.apply(super.emit, [args.first, args.sublist(1)]);
-      } else {
-        Function.apply(super.emit, args);
-      }
+      emitEvent(args);
     } else {
       receiveBuffer.add(args);
     }
   }
+
+  void emitEvent(List<dynamic> args) {
+        // Assuming `super.emit` is analogous to calling an inherited or mixin method.
+    try{
+      if (args.length > 2) {
+        Function.apply(super.emit, [args.first, args.sublist(1)]);
+        // } else if (args is int) {
+        //   Function.apply(super.emit, args as int);
+      } else {
+        Function.apply(super.emit, args);
+      }
+    } catch (e){
+      print(e.toString());
+    }
+
+  }
+
+  ///-------------------------------------------------------
 
   ///
   /// Produces an ack callback to emit with an event.
